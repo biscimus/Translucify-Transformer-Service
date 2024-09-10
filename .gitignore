@@ -3,3 +3,4 @@ venv/
 event-logs/
 logs/
 models/
+checkpoints/
