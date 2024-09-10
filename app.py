@@ -14,7 +14,7 @@ def transformer():
         id, threshold = request.form.get("id"), request.form.get("threshold")
 
         # Save the event log to the ./event-logs directory
-        os.mkdir("./event-logs", exist_ok=True)
+        os.makedirs("./event-logs", exist_ok=True)
         file.save(f"./event-logs/{id}.csv")
 
         # convert file to dataframe
