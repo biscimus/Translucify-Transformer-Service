@@ -31,6 +31,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
     # One to one map activities to integers
     le = LabelEncoder().fit(labels)
 
+    
     # Add next activity column to the DataFrame and fill it
     log[NEXT_ACTIVITY_COLUMN] = None
     def fill_next_activity_column(group: pd.Series) -> pd.DataFrame:
@@ -46,6 +47,13 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
     log[NEXT_ACTIVITY_COLUMN] = le.transform(log[NEXT_ACTIVITY_COLUMN])
 
     print("Log after next activity column gen: \n", log)
+
+    tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', do_lower_case=True)
+
+    is_gpu_available = torch.cuda.is_available()
+    print(f"Is GPU available: {is_gpu_available}")
+        
+    device = torch.device("cuda" if is_gpu_available else "cpu")
     
     # check if model is already trained and saved in ./models directory
     if not os.path.exists(f"./models/{id}"):
@@ -84,7 +92,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
             test_size=0.2,
         )
 
-        tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', do_lower_case=True)
+        
         train_encodings = tokenizer(train_inputs, padding="max_length", truncation=True, max_length=512)
         test_encodings = tokenizer(test_inputs, padding="max_length", truncation=True, max_length=512)
 
@@ -114,11 +122,6 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
             problem_type="multi_label_classification",
             num_labels=labels.size
         )
-
-        is_gpu_available = torch.cuda.is_available()
-        print(f"Is GPU available: {is_gpu_available}")
-        
-        device = torch.device("cuda" if is_gpu_available else "cpu")
 
 
         training_arguments = TrainingArguments(
