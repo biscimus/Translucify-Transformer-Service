@@ -41,7 +41,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
                 group.at[previous_index, NEXT_ACTIVITY_COLUMN] = row[ACTIVITY_COLUMN]
             previous_index = index
         return group
-    log = log.groupby(CASE_COLUMN, group_keys=False).apply(fill_next_activity_column).reset_index()
+    log = log.groupby(CASE_COLUMN, group_keys=False).apply(fill_next_activity_column)
     # Fill None values with the number of unique labels as end activity
     log[NEXT_ACTIVITY_COLUMN] = log[NEXT_ACTIVITY_COLUMN].fillna("end")
     log[NEXT_ACTIVITY_COLUMN] = le.transform(log[NEXT_ACTIVITY_COLUMN])
@@ -79,7 +79,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
                 input_prefix += "; "
             return group
 
-        log.groupby(CASE_COLUMN, group_keys=False).apply(generate_instances_per_case).reset_index()
+        log.groupby(CASE_COLUMN, group_keys=False).apply(generate_instances_per_case)
 
         print("LOG after creating instances: \n", log)
 
@@ -224,7 +224,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
             enabled_activities = string_labels
         return group
 
-    log = log.groupby(CASE_COLUMN, group_keys=False).apply(fill_enabled_activities_column).reset_index()
+    log = log.groupby(CASE_COLUMN, group_keys=False).apply(fill_enabled_activities_column)
     return log
 
    
