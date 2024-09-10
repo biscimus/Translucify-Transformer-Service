@@ -193,6 +193,9 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
 
         enabled_activities = None
 
+        print("Group: \n", group)
+        print("Data columns: \n", data_columns)
+
         for index, row in group.iterrows():
             # Generate input instance
             input = row[data_columns].values.tolist()
