@@ -194,6 +194,8 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
     custom_state_dict = torch.load(f"./models/{id}", weights_only=True)
     model.load_state_dict(custom_state_dict)
 
+    model = model.to(device)
+
     log[ENABLED_ACTIVITIES_COLUMN] = None
 
     def fill_enabled_activities_column(group: pd.Series) -> pd.DataFrame:
