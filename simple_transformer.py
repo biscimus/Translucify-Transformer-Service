@@ -41,7 +41,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
                 group.at[previous_index, NEXT_ACTIVITY_COLUMN] = row[ACTIVITY_COLUMN]
             previous_index = index
         return group
-    log = log.groupby(CASE_COLUMN, group_keys=False).apply(fill_next_activity_column)
+    log = log.groupby(CASE_COLUMN, group_keys=False).apply(fill_next_activity_column).reset_index()
     # Fill None values with the number of unique labels as end activity
     log[NEXT_ACTIVITY_COLUMN] = log[NEXT_ACTIVITY_COLUMN].fillna("end")
     log[NEXT_ACTIVITY_COLUMN] = le.transform(log[NEXT_ACTIVITY_COLUMN])
@@ -79,7 +79,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
                 input_prefix += "; "
             return group
 
-        log.groupby(CASE_COLUMN, group_keys=False).apply(generate_instances_per_case)
+        log.groupby(CASE_COLUMN, group_keys=False).apply(generate_instances_per_case).reset_index()
 
         print("LOG after creating instances: \n", log)
 
@@ -197,7 +197,6 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
         enabled_activities = None
 
         print("Group: \n", group)
-        print("Data columns: \n", data_columns)
 
         for index, row in group.iterrows():
             # Generate input instance
@@ -213,8 +212,9 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
             probabilities = torch.sigmoid(logits)  # Apply sigmoid to convert logits to probabilities
             print(probabilities)
 
-            # Move probabilities to CPU and convert to numpy array for further processing
-            probabilities = probabilities.cpu().numpy()
+            # Convert probabilities to numpy array for further processing
+            probabilities = probabilities.numpy()
+            print("probs: ", probabilities)
             high_prob_indices = (probabilities > threshold).nonzero(as_tuple=True)[1]
             string_labels = le.inverse_transform(high_prob_indices)
             print("String labels", string_labels)
@@ -222,9 +222,11 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
             if enabled_activities is not None:
                 group.at[index, ENABLED_ACTIVITIES_COLUMN] = sorted(enabled_activities, key=str.lower)
             enabled_activities = string_labels
+
+        print("Group after enabled activities: \n", group)
         return group
 
-    log = log.groupby(CASE_COLUMN, group_keys=False).apply(fill_enabled_activities_column)
+    log = log.groupby(CASE_COLUMN, group_keys=False).apply(fill_enabled_activities_column).reset_index()
     return log
 
    
