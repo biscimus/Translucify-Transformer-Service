@@ -184,7 +184,15 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
         torch.save(model.state_dict(), f"./models/{id}")
 
     # Load the model
-    model = torch.load(f"./models/{id}")
+    model = AutoModelForSequenceClassification.from_pretrained(
+            "distilbert-base-uncased",
+            problem_type="multi_label_classification",
+            num_labels=labels.size
+        )
+
+    # If you have custom weights to load (optional)
+    custom_state_dict = torch.load(f"./models/{id}", weights_only=True)
+    model.load_state_dict(custom_state_dict)
 
     log[ENABLED_ACTIVITIES_COLUMN] = None
 
