@@ -16,9 +16,6 @@ NEXT_ACTIVITY_COLUMN = "next_activity"
 ENABLED_ACTIVITIES_COLUMN = "enabled_activities"
 
 def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, data_columns: list[str] = None) -> pd.DataFrame:
-
-    if data_columns is None:
-        data_columns = log.columns
         
     # Get list of all activities
     labels = log[ACTIVITY_COLUMN].unique()
@@ -31,7 +28,6 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
     # One to one map activities to integers
     le = LabelEncoder().fit(labels)
 
-    
     # Add next activity column to the DataFrame and fill it
     log[NEXT_ACTIVITY_COLUMN] = None
     def fill_next_activity_column(group: pd.Series) -> pd.DataFrame:
@@ -70,7 +66,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
         def generate_instances_per_case(group: pd.Series) -> pd.DataFrame:
             input_prefix: str = ""
             for index, row in group.iterrows():
-                input = row[data_columns].values.tolist()
+                input = row.values.tolist()
                 input = ', '.join(map(str, input))
                 input_prefix += input
                 inputs_list.append(input_prefix)
@@ -200,7 +196,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
 
         for index, row in group.iterrows():
             # Generate input instance
-            input = row[data_columns].values.tolist()
+            input = row.values.tolist()
             input = ', '.join(map(str, input))
             inputs = tokenizer(input, padding=True, truncation=True, return_tensors="pt")
             inputs = inputs.to(device)
