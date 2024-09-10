@@ -181,7 +181,7 @@ def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, d
         eval_result_df.to_csv("./logs/transformer_eval_result.csv", index=False)
 
         # Save the model
-        os.makedirs("./logs", exist_ok=True)
+        os.makedirs("./models", exist_ok=True)
         torch.save(model.state_dict(), f"./models/{id}")
 
     # Load the model
