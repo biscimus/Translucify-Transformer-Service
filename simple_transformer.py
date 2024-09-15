@@ -15,8 +15,10 @@ CASE_COLUMN = "case:concept:name"
 NEXT_ACTIVITY_COLUMN = "next_activity"
 ENABLED_ACTIVITIES_COLUMN = "enabled_activities"
 
-def translucify_with_transformer(id: int, log: pd.DataFrame, threshold: float, data_columns: list[str] = None) -> pd.DataFrame:
-        
+def translucify_with_transformer(id: int, threshold: float) -> pd.DataFrame:
+    
+    log = pd.read_csv(f"./event-logs/{id}.csv", delimiter=";")
+
     # Get list of all activities
     labels = log[ACTIVITY_COLUMN].unique()
 

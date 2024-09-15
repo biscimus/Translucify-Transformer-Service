@@ -1,9 +1,36 @@
 import os
+from celery import Celery, Task, shared_task
 from flask import Flask, jsonify, request
 import pandas as pd
 from simple_transformer import translucify_with_transformer
+import requests
+
+# Celery configuration
+def celery_init_app(app: Flask) -> Celery:
+    class FlaskTask(Task):
+        def __call__(self, *args: object, **kwargs: object) -> object:
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery_app = Celery(app.name, task_cls=FlaskTask)
+    celery_app.config_from_object(app.config["CELERY"])
+    celery_app.set_default()
+    app.extensions["celery"] = celery_app
+    return celery_app
 
 app = Flask(__name__)
+
+# Add Celery
+app.config.from_mapping(
+    CELERY=dict(
+        broker_url="redis://localhost:6379/0",
+        result_backend="redis://localhost:6379/0",
+        task_ignore_result=True,
+    ),
+)
+
+# Use command "celery -A app.celery worker --loglevel INFO" to start the worker
+celery = celery_init_app(app)
 
 # For the POST request, the microservice gets an event log. Then, it creates a model instance using the event log, whose parametes are saved in the ./models directory. In subsequent requests, the microservice uses the model instance to make predictions.
 # For the GET request, the service returns the translucent event log.
@@ -15,16 +42,16 @@ def transformer():
 
         # Save the event log to the ./event-logs directory
         os.makedirs("./event-logs", exist_ok=True)
-        file.save(f"./event-logs/{id}.csv")
+
+        file_path = os.path.join("./event-logs", f"{id}.csv")
+        file.save(file_path)
 
         # convert file to dataframe
-        log = pd.read_csv(f"./event-logs/{id}.csv", delimiter=";")
+        process_translucent_log_with_transformer.delay(id, threshold)
+    
+@shared_task
+def process_translucent_log_with_transformer(id, threshold):
+    df = translucify_with_transformer(id, threshold)
 
-        # Create a transformer model instance using the event log
-        return jsonify(translucify_with_transformer(id, log, threshold))
-
-
-
-
-
-        
+    # Post the translucent event log back to the main application
+    requests.post(f"http://localhost:5000/{id}/callback", files={"file": df.to_csv()}, data={"id": id})
