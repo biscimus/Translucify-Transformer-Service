@@ -26,6 +26,7 @@ app.config.from_mapping(
         broker_url="redis://localhost:7777/0",
         result_backend="redis://localhost:7777/0",
         task_ignore_result=True,
+        broker_connection_retry_on_startup=True,
     ),
 )
 
