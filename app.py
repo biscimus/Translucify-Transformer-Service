@@ -23,8 +23,8 @@ app = Flask(__name__)
 # Add Celery
 app.config.from_mapping(
     CELERY=dict(
-        broker_url="redis://localhost:6379/0",
-        result_backend="redis://localhost:6379/0",
+        broker_url="redis://localhost:7777/0",
+        result_backend="redis://localhost:7777/0",
         task_ignore_result=True,
     ),
 )
@@ -48,6 +48,8 @@ def transformer():
 
         # convert file to dataframe
         process_translucent_log_with_transformer.delay(id, threshold)
+
+        return "Gotcha!"
     
 @shared_task
 def process_translucent_log_with_transformer(id, threshold):
