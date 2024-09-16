@@ -57,4 +57,4 @@ def process_translucent_log_with_transformer(id, threshold):
     df = translucify_with_transformer(id, threshold)
 
     # Post the translucent event log back to the main application
-    requests.post(f"http://localhost:5000/{id}/callback", files={"file": df.to_csv()}, data={"id": id})
+    requests.post(f"http://localhost:3000/{id}/callback", files={"file": df.to_csv()}, data={"id": id})
