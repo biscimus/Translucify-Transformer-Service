@@ -39,7 +39,7 @@ celery = celery_init_app(app)
 def transformer():
     if request.method == "POST":
         file = request.files.get("file")
-        id, threshold = request.form.get("id"), request.form.get("threshold")
+        id, threshold = request.form.get("id"), float(request.form.get("threshold"))
 
         # Save the event log to the ./event-logs directory
         os.makedirs("./event-logs", exist_ok=True)
