@@ -18,10 +18,19 @@ start_flask() {
     flask run --debug
 }
 
-# Run the services in separate terminals
-gnome-terminal -- bash -c "start_redis; exec bash"
-gnome-terminal -- bash -c "start_celery; exec bash"
-gnome-terminal -- bash -c "start_flask; exec bash"
+# Create a new tmux session and run the services in different panes
+tmux new-session -d -s mysession
 
-# Keep the script running
-wait
+# Start Redis in the first tmux window
+tmux send-keys "start_redis" C-m
+
+# Split the window and start Celery in the new pane
+tmux split-window -h
+tmux send-keys "start_celery" C-m
+
+# Split the window again and start Flask in the new pane
+tmux split-window -v
+tmux send-keys "start_flask" C-m
+
+# Attach to the tmux session to monitor the processes
+tmux attach-session -t mysession
