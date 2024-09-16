@@ -223,7 +223,7 @@ def translucify_with_transformer(id: int, threshold: float) -> pd.DataFrame:
             # Move probabilities to cpu and convert to numpy array for further processing
             probabilities = probabilities.cpu().numpy()
             print("probs: ", probabilities)
-            high_prob_indices = (probabilities > threshold).nonzero(as_tuple=True)[1]
+            high_prob_indices = (probabilities > threshold).nonzero()[1]
             string_labels = le.inverse_transform(high_prob_indices)
             print("String labels", string_labels)
             #TODO: Add artificial start activity for training
